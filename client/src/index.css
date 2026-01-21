@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@theme {
+    /* Primary / Brand - The Pastel Magenta/Gold */
+    --color-primary: #eac157;
+    --color-primary-foreground: #fff;
+    /* eerie-black-1 */
+
+    /* Backgrounds - Using the darkest shades for depth */
+    --color-secondary: #161718;
+    /* eerie-black-1 (Main BG) */
+    --color-secondary-foreground: #FFFFFF;
+    /* white */
+
+    /* Accent / Highlights */
+    --color-accent: #FFFFFF1A;
+    /* white-alpha-10 */
+    --color-accent-foreground: #EAD196;
+    /* pastel-magenta */
+
+    /* Destructive */
+    --color-destructive: #F43F5E;
+    --color-destructive-foreground: #FFFFFF;
+
+    /* Muted Text / Labels */
+    --color-muted: #A6A6A6;
+    /* quick-silver */
+    --color-muted-foreground: #a6a6a6;
+    /* davys-grey */
+
+    /* Borders / Inputs */
+    --color-border: #212121;
+    /* eerie-black-4 (Subtle contrast) */
+    --color-input: #1B1C1D;
+    /* eerie-black-2 */
+    --color-ring: #EAD196;
+
+    /* Rounded corners */
+    --radius-lg: 12px;
+    --radius-md: 8px;
+    --radius-sm: 4px;
+
+    --font-sans: "Inter", "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring;
+    }
+
+    body {
+        /* Set background to Eerie Black 1 */
+        @apply bg-[#000] text-white font-sans antialiased;
+    }
+
+    /* Sidebar Styling */
+    aside {
+        /* Slightly lighter than body: Eerie Black 2 */
+        @apply bg-[#161718] border-r border-border;
+    }
+
+    /* Navigation Links */
+    nav a {
+        @apply flex items-center gap-3 px-4 py-2.5 text-[15px] font-medium text-muted transition-all rounded-lg;
+    }
+
+    /* Active Sidebar Link: Background is white-alpha-10, text is Magenta */
+    nav a.active {
+        @apply bg-white/10 text-primary font-semibold;
+    }
+
+    /* Dashboard Metric Cards */
+    .card {
+        /* Card Background: Eerie Black 2 */
+        @apply bg-[#161718] rounded-xl border border-white/5 p-6 shadow-xl;
+    }
+
+    .card h3 {
+        @apply text-muted text-xs uppercase tracking-wider font-semibold mb-2;
+    }
+
+    .card .value {
+        @apply text-white text-3xl font-bold tracking-tight;
+    }
+
+    /* Search Bar Input */
+    input[type="search"] {
+        @apply h-11 w-full rounded-full border-none bg-white/5 px-6 py-2 text-sm text-white transition-all;
+        @apply focus:ring-2 focus:ring-primary/40 placeholder:text-muted/50;
+    }
+
+    /* Logout Button Style */
+    .btn-logout {
+        @apply text-destructive font-semibold border border-destructive/20 rounded-lg px-4 py-2 hover:bg-destructive/10 transition-colors;
+    }
+
+    /* Custom utility for the "trend" green text seen in your image */
+    .text-trend-up {
+        @apply text-emerald-400 font-medium text-sm;
+    }
+}
