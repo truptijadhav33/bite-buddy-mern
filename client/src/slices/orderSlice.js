@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../utils/api";
+import api from "../services/api";
 
 // Async thunks
 export const fetchOrders = createAsyncThunk(
     "orders/fetchOrders",
     async (_, { rejectWithValue }) => {
         try {
-            const response = await api.get("/orders");
+            // Update this to match router.get("/my", protect, ...) 
+            const response = await api.get("/orders/my"); 
             return response.data.data;
         } catch (err) {
             return rejectWithValue(err.response.data.message || "Failed to fetch orders");

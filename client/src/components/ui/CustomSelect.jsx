@@ -32,9 +32,11 @@ export default function CustomSelect({
           "
                 >
                     <Select.Viewport className="p-1">
-                        {options.map((opt) => (
+                        {/* 1. Added safety check to ensure opt exists */}
+                        {options && options.map((opt, index) => (
                             <Select.Item
-                                key={opt.value}
+                                // 2. Fallback to index if value is missing to ensure a key always exists
+                                key={opt.value || `select-opt-${index}`} 
                                 value={opt.value}
                                 className="
                   relative flex cursor-pointer select-none items-center

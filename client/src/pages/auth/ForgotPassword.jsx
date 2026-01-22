@@ -1,95 +1,70 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { forgotPassword} from "../../slices/authSlice";
+import { FaEnvelope, FaArrowLeft } from "react-icons/fa6";
 import { Link } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { forgotPassword, clearError } from "../../slices/authSlice";
-import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
-import { FaEnvelope, FaArrowLeft, FaCheckCircle } from "react-icons/fa6";
 
 export default function ForgotPassword() {
-    const [email, setEmail] = useState("");
-    const [submitted, setSubmitted] = useState(false);
-    const dispatch = useAppDispatch();
-    const { loading, error } = useAppSelector((state) => state.auth);
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const { loading, error } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const result = await dispatch(forgotPassword(email));
-        if (result.meta.requestStatus === "fulfilled") {
-            setSubmitted(true);
-        }
-    };
-
-    if (submitted) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center p-4">
-                <div className="w-full max-w-md text-center space-y-6 bg-[#161718] p-10 rounded-3xl border border-white/5 shadow-2xl">
-                    <FaCheckCircle className="text-primary text-6xl mx-auto mb-4 animate-bounce" />
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Check Your Email</h1>
-                    <p className="text-muted-foreground font-light leading-relaxed">
-                        We've sent a password reset link to <span className="text-white font-medium">{email}</span>. Please check your inbox (and spam folder).
-                    </p>
-                    <Link
-                        to="/login"
-                        className="inline-flex items-center gap-2 text-primary hover:text-white transition-colors text-sm font-bold uppercase tracking-widest"
-                    >
-                        <FaArrowLeft /> Back to Login
-                    </Link>
-                </div>
-            </div>
-        );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const result = await dispatch(forgotPassword(email));
+    if (!result.error) {
+      setSubmitted(true);
     }
+  };
 
-    return (
-        <div className="min-h-screen bg-black flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-[#161718] p-10 rounded-3xl border border-white/5 shadow-2xl space-y-8">
-                <div className="text-center space-y-2">
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Reset Password</h1>
-                    <p className="text-muted-foreground text-sm font-light">
-                        Enter your email address and we'll send you a link to reset your password.
-                    </p>
-                </div>
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center pt-20 px-4">
+      <div className="max-w-md w-full bg-[#161718] border border-white/10 rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden">
+        {/* Decorative Background Glow */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-[80px]" />
 
-                {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest text-center">
-                        {error}
-                    </div>
-                )}
+        <div className="relative z-10">
+          <Link to="/login" className="flex items-center gap-2 text-primary text-[10px] font-black uppercase tracking-widest mb-8 hover:gap-4 transition-all">
+            <FaArrowLeft /> Back to Login
+          </Link>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Email Address</label>
-                        <div className="relative group">
-                            <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                            <Input
-                                type="email"
-                                required
-                                placeholder="name@example.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="pl-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-primary/50 h-12 rounded-xl"
-                            />
-                        </div>
-                    </div>
+          <h2 className="text-3xl font-serif italic text-white mb-2 tracking-tighter">Recover <span className="text-primary">Access</span></h2>
+          <p className="text-muted-foreground text-xs uppercase tracking-widest mb-8 font-bold opacity-70">Enter your email to receive a reset link.</p>
 
-                    <Button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-primary text-black hover:bg-white transition-all h-12 rounded-xl font-black uppercase tracking-[0.2em] transform active:scale-95 shadow-[0_10px_20px_-10px_rgba(234,193,87,0.3)]"
-                    >
-                        {loading ? "Sending link..." : "Send Reset Link"}
-                    </Button>
-
-                    <div className="text-center">
-                        <Link
-                            to="/login"
-                            className="inline-flex items-center gap-2 text-muted-foreground hover:text-white transition-colors text-sm font-bold uppercase tracking-widest"
-                        >
-                            <FaArrowLeft /> Back to Login
-                        </Link>
-                    </div>
-                </form>
+          {submitted ? (
+            <div className="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl text-center">
+              <p className="text-emerald-500 text-sm font-medium">Check your inbox! We've sent instructions to reset your password.</p>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-primary uppercase tracking-[0.2em] ml-1">Email Address</label>
+                <div className="relative">
+                  <FaEnvelope className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30" />
+                  <input
+                    type="email"
+                    required
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-primary/50 transition-all outline-none"
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {error && <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest text-center">{error}</p>}
+
+              <button
+                disabled={loading}
+                className="w-full py-4 rounded-2xl bg-primary text-black font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all disabled:opacity-50"
+              >
+                {loading ? "Sending..." : "Send Reset Link"}
+              </button>
+            </form>
+          )}
         </div>
-    );
+      </div>
+    </div>
+  );
 }

@@ -11,7 +11,7 @@ const statusColors = {
 };
 
 export default function SharedOrdersTable({
-    orders,
+    orders = [], // Default to empty array
     onStatusChange,
     columns = ["id", "table", "status"],
     title = "Orders",
@@ -19,115 +19,108 @@ export default function SharedOrdersTable({
     const [filterStatus, setFilterStatus] = useState("All");
     const [tableSearch, setTableSearch] = useState("");
 
-    const filteredOrders = orders.filter(
-        (o) =>
-            (filterStatus === "All" || o.status === filterStatus) &&
-            (tableSearch === "" || o.table.toString().includes(tableSearch))
-    );
+    const filteredOrders = orders.filter((o) => {
+        // Handle both simple table numbers and nested table objects from backend
+        const tableValue = typeof o.table === 'object' ? o.table?.number : o.table;
+        const tableString = tableValue?.toString() || "";
 
-    const statuses = ["All", "Pending", "Preparing", "Completed"];
+        return (
+            (filterStatus === "All" || o.status === filterStatus) &&
+            (tableSearch === "" || tableString.includes(tableSearch))
+        );
+    });
+
+    const statuses = ["All", "Pending", "Preparing", "Completed", "Cancelled"];
 
     return (
-        <div className="rounded-xl border border-border bg-card text-card-foreground shadow-sm">
-            <div className="p-6 border-b border-border flex flex-wrap items-center justify-between gap-4">
-                <h3 className="text-xl font-semibold leading-none tracking-tight">
-                    {title}
+        <div className="rounded-xl border border-white/10 bg-[#1a1b1c] text-card-foreground shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-white/10 flex flex-wrap items-center justify-between gap-4 bg-white/5">
+                <h3 className="text-xl font-bold tracking-tight text-white italic font-serif">
+                    {title.split(' ')[0]}<span className="text-primary">{title.split(' ')[1] || ""}</span>
                 </h3>
 
                 <div className="flex items-center gap-4">
-                    <CustomSelect
-                        value={filterStatus}
-                        onValueChange={setFilterStatus}
-                        placeholder="Filter by status"
-                        options={statuses.map((s) => ({ value: s, label: s }))}
-                        className="w-40"
-                    />
-
+                    <div className="w-40">
+                        <CustomSelect
+                            value={filterStatus}
+                            onValueChange={setFilterStatus}
+                            placeholder="Filter Status"
+                            options={statuses.map((s) => ({ value: s, label: s }))}
+                        />
+                    </div>
 
                     <Input
                         type="number"
-                        placeholder="Search Table #"
+                        placeholder="Table #"
                         value={tableSearch}
                         onChange={(e) => setTableSearch(e.target.value)}
-                        className="w-40"
+                        className="w-32 bg-white/5 border-white/10 text-white"
                     />
                 </div>
             </div>
 
             <div className="relative w-full overflow-auto">
-                <table className="w-full caption-bottom text-sm">
-                    <thead className="[&_tr]:border-b border-border">
-                        <tr className="border-b transition-colors data-[state=selected]:bg-muted">
-                            {columns.includes("id") && (
-                                <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                                    Order ID
-                                </th>
-                            )}
-                            {columns.includes("table") && (
-                                <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                                    Table
-                                </th>
-                            )}
-                            {columns.includes("items") && (
-                                <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                                    Items
-                                </th>
-                            )}
-                            {columns.includes("amount") && (
-                                <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                                    Amount
-                                </th>
-                            )}
-                            {columns.includes("status") && (
-                                <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">
-                                    Status
-                                </th>
-                            )}
+                <table className="w-full text-sm">
+                    <thead className="bg-white/5 border-b border-white/5">
+                        <tr className="text-muted-foreground">
+                            {columns.includes("id") && <th className="h-12 px-6 text-left align-middle font-black uppercase tracking-widest text-[10px]">Order ID</th>}
+                            {columns.includes("table") && <th className="h-12 px-6 text-left align-middle font-black uppercase tracking-widest text-[10px]">Table</th>}
+                            {columns.includes("items") && <th className="h-12 px-6 text-left align-middle font-black uppercase tracking-widest text-[10px]">Items</th>}
+                            {columns.includes("amount") && <th className="h-12 px-6 text-left align-middle font-black uppercase tracking-widest text-[10px]">Amount</th>}
+                            {columns.includes("status") && <th className="h-12 px-6 text-left align-middle font-black uppercase tracking-widest text-[10px]">Status & Action</th>}
                         </tr>
                     </thead>
-                    <tbody className="[&_tr:last-child]:border-0">
-                        {filteredOrders.map((order) => (
-                            <tr
-                                key={order.id}
-                                className="border-b border-border transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                            >
-                                {columns.includes("id") && (
-                                    <td className="p-4 align-middle font-medium">{order.id}</td>
-                                )}
-                                {columns.includes("table") && (
-                                    <td className="p-4 align-middle">{order.table}</td>
-                                )}
-                                {columns.includes("items") && (
-                                    <td className="p-4 align-middle">{order.items || "-"}</td>
-                                )}
-                                {columns.includes("amount") && (
-                                    <td className="p-4 align-middle">
-                                        {order.amount ? `₹${order.amount}` : "-"}
-                                    </td>
-                                )}
-                                {columns.includes("status") && (
-                                    <td className="p-4 align-middle flex items-center gap-4">
-                                        <Badge variant={statusColors[order.status] || "default"}>
-                                            {order.status}
-                                        </Badge>
-                                        {onStatusChange && (
-                                            <CustomSelect
-                                                value={order.status}
-                                                onValueChange={(value) => onStatusChange(order.id, value)}
-                                                options={statuses.slice(1).map((s) => ({ value: s, label: s }))}
-                                                className="h-8 w-32 text-xs"
-                                            />
+                    <tbody className="divide-y divide-white/5">
+                        {filteredOrders.map((order) => {
+                            // Backend uses _id, mock used id. We check for both.
+                            const orderId = order._id || order.id;
+                            const tableDisplay = typeof order.table === 'object' ? order.table?.number : order.table;
 
-                                        )}
-                                    </td>
-
-                                )}
-                            </tr>
-                        ))}
+                            return (
+                                <tr key={orderId} className="hover:bg-white/5 transition-colors group">
+                                    {columns.includes("id") && (
+                                        <td className="p-6 align-middle font-mono text-[10px] text-muted-foreground">
+                                            {orderId.toString().slice(-6).toUpperCase()}
+                                        </td>
+                                    )}
+                                    {columns.includes("table") && (
+                                        <td className="p-6 align-middle font-bold text-white">T-{tableDisplay}</td>
+                                    )}
+                                    {columns.includes("items") && (
+                                        <td className="p-6 align-middle text-muted-foreground">
+                                            {order.items?.length || 0} Items
+                                        </td>
+                                    )}
+                                    {columns.includes("amount") && (
+                                        <td className="p-6 align-middle font-black text-primary italic">
+                                            ₹{order.totalAmount || order.amount || 0}
+                                        </td>
+                                    )}
+                                    {columns.includes("status") && (
+                                        <td className="p-6 align-middle">
+                                            <div className="flex items-center gap-3">
+                                                <Badge variant={statusColors[order.status] || "default"}>
+                                                    {order.status}
+                                                </Badge>
+                                                {onStatusChange && (
+                                                    <div className="w-32">
+                                                        <CustomSelect
+                                                            value={order.status}
+                                                            onValueChange={(value) => onStatusChange(orderId, value)}
+                                                            options={statuses.slice(1).map((s) => ({ value: s, label: s }))}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                    )}
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
                 {filteredOrders.length === 0 && (
-                    <div className="p-8 text-center text-muted">No orders found.</div>
+                    <div className="py-20 text-center text-muted-foreground italic">No orders match your filters.</div>
                 )}
             </div>
         </div>

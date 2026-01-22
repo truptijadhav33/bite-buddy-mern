@@ -1,23 +1,45 @@
-const express = require('express');
-const {
-    getTables,
-    getTable,
-    createTable,
-    updateTable,
-    deleteTable,
-} = require('../controllers/tableController');
-
+const express = require("express");
 const router = express.Router();
+const tableController = require("../controllers/tableController");
+const {
+  protect,
+  authorize,
+} = require("../middleware/authMiddleware");
 
-const { protect, authorize } = require('../middleware/authMiddleware');
+// Admin / Staff
+router.post(
+  "/",
+  protect,
+  authorize("admin", "staff"),
+  tableController.createTable
+);
 
-router.route('/')
-    .get(getTables)
-    .post(protect, authorize('admin'), createTable);
+router.get(
+  "/",
+  protect,
+  authorize("admin", "staff"),
+  tableController.getTables
+);
 
-router.route('/:id')
-    .get(getTable)
-    .put(protect, authorize('staff', 'admin'), updateTable)
-    .delete(protect, authorize('admin'), deleteTable);
+router.get(
+  "/:id",
+  protect,
+  authorize("admin", "staff"),
+  tableController.getTable
+);
+
+router.put(
+  "/:id",
+  protect,
+  authorize("admin", "staff"),
+  tableController.updateTable
+);
+
+router.delete(
+  "/:id",
+  protect,
+  authorize("admin", "staff"),
+  tableController.deleteTable
+);
 
 module.exports = router;

@@ -1,81 +1,27 @@
-const Table = require('../models/Table');
+const wrapAsync = require("../utils/wrapAsync");
+const tableService = require("../services/tableService");
 
-// @desc    Get all tables
-// @route   GET /api/tables
-// @access  Public
-exports.getTables = async (req, res, next) => {
-    try {
-        const tables = await Table.find();
-        res.status(200).json({ success: true, count: tables.length, data: tables });
-    } catch (err) {
-        next(err);
-    }
-};
+exports.createTable = wrapAsync(async (req, res) => {
+  const table = await tableService.createTable(req.body);
+  res.status(201).json(table);
+});
 
-// @desc    Get single table
-// @route   GET /api/tables/:id
-// @access  Public
-exports.getTable = async (req, res, next) => {
-    try {
-        const table = await Table.findById(req.params.id);
+exports.getTables = wrapAsync(async (req, res) => {
+  const tables = await tableService.getAllTables();
+  res.json(tables);
+});
 
-        if (!table) {
-            return res.status(404).json({ message: 'Table not found' });
-        }
+exports.getTable = wrapAsync(async (req, res) => {
+  const table = await tableService.getTableById(req.params.id);
+  res.json(table);
+});
 
-        res.status(200).json({ success: true, data: table });
-    } catch (err) {
-        next(err);
-    }
-};
+exports.updateTable = wrapAsync(async (req, res) => {
+  const table = await tableService.updateTable(req.params.id, req.body);
+  res.json(table);
+});
 
-// @desc    Create a table
-// @route   POST /api/tables
-// @access  Private/Admin
-exports.createTable = async (req, res, next) => {
-    try {
-        const table = await Table.create(req.body);
-        res.status(201).json({ success: true, data: table });
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc    Update a table
-// @route   PUT /api/tables/:id
-// @access  Private/Staff/Admin
-exports.updateTable = async (req, res, next) => {
-    try {
-        const table = await Table.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true,
-        });
-
-        if (!table) {
-            return res.status(404).json({ message: 'Table not found' });
-        }
-
-        res.status(200).json({ success: true, data: table });
-    } catch (err) {
-        next(err);
-    }
-};
-
-// @desc    Delete a table
-// @route   DELETE /api/tables/:id
-// @access  Private/Admin
-exports.deleteTable = async (req, res, next) => {
-    try {
-        const table = await Table.findById(req.params.id);
-
-        if (!table) {
-            return res.status(404).json({ message: 'Table not found' });
-        }
-
-        await table.deleteOne();
-
-        res.status(200).json({ success: true, data: {} });
-    } catch (err) {
-        next(err);
-    }
-};
+exports.deleteTable = wrapAsync(async (req, res) => {
+  await tableService.deleteTable(req.params.id);
+  res.status(204).end();
+});

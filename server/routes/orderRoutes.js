@@ -1,24 +1,28 @@
-const express = require('express');
-const {
-    getOrders,
-    getOrder,
-    createOrder,
-    updateOrderStatus,
-    updatePaymentStatus,
-} = require('../controllers/orderController');
-
+const express = require("express");
 const router = express.Router();
+const orderController = require("../controllers/orderController");
+const {
+  protect,
+  authorize,
+} = require("../middleware/authMiddleware");
 
-const { protect, authorize } = require('../middleware/authMiddleware');
+// Customer
+router.post("/", protect, orderController.createOrder);
+router.get("/my", protect, orderController.getMyOrders);
 
-router.route('/')
-    .get(protect, authorize('staff', 'admin'), getOrders)
-    .post(createOrder); // Customers can create orders without login (via QR)
+// Admin / Staff
+router.get(
+  "/",
+  protect,
+  authorize("admin", "staff"),
+  orderController.getAllOrders
+);
 
-router.route('/:id')
-    .get(protect, authorize('staff', 'admin'), getOrder);
-
-router.put('/:id/status', protect, authorize('staff', 'admin'), updateOrderStatus);
-router.put('/:id/payment', protect, authorize('staff', 'admin'), updatePaymentStatus);
+router.put(
+  "/:id/status",
+  protect,
+  authorize("admin", "staff"),
+  orderController.updateOrderStatus
+);
 
 module.exports = router;

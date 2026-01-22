@@ -1,28 +1,40 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const galleryItemSchema = mongoose.Schema(
-    {
-        title: {
-            type: String,
-            required: [true, 'Please add a title'],
-            trim: true,
-        },
-        description: {
-            type: String,
-        },
-        image: {
-            type: String,
-            required: [true, 'Please add an image URL'],
-        },
-        category: {
-            type: String,
-            enum: ['Interior', 'Food', 'Events', 'Other'],
-            default: 'Other',
-        },
+const galleryItemSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    {
-        timestamps: true,
-    }
+
+    imageUrl: {
+      type: String,
+      required: true,
+    },
+
+    imagePublicId: {
+      type: String,
+      required: true,
+    },
+
+    category: {
+      type: String,
+      enum: ["food", "interior", "events", "other"],
+      default: "food",
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+
+    uploadedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  },
+  { timestamps: true }
 );
 
-module.exports = mongoose.model('GalleryItem', galleryItemSchema);
+module.exports = mongoose.model("GalleryItem", galleryItemSchema);

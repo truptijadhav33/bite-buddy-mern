@@ -1,56 +1,63 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const orderSchema = mongoose.Schema(
+const orderItemSchema = new mongoose.Schema(
     {
-        table: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'Table',
+        menuItem: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Menu",
             required: true,
         },
-        items: [
-            {
-                menuItem: {
-                    type: mongoose.Schema.ObjectId,
-                    ref: 'MenuItem',
-                    required: true,
-                },
-                quantity: {
-                    type: Number,
-                    required: true,
-                    min: [1, 'Quantity cannot be less than 1'],
-                },
-                price: {
-                    type: Number,
-                    required: true,
-                },
-                instructions: {
-                    type: String,
-                },
-            },
-        ],
-        status: {
-            type: String,
-            enum: ['Pending', 'Preparing', 'Ready', 'Served', 'Cancelled', 'Paid'],
-            default: 'Pending',
+        table: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Table",
+            default: null,
         },
+        name: String,       // snapshot
+        price: Number,     // snapshot
+        quantity: {
+            type: Number,
+            required: true,
+            min: 1,
+        },
+    },
+    { _id: false }
+);
+
+const orderSchema = new mongoose.Schema(
+    {
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+
+        items: [orderItemSchema],
+
         totalAmount: {
             type: Number,
             required: true,
         },
+
+        status: {
+            type: String,
+            enum: [
+                "placed",
+                "confirmed",
+                "preparing",
+                "ready",
+                "completed",
+                "cancelled",
+            ],
+            default: "placed",
+        },
+
         paymentStatus: {
             type: String,
-            enum: ['Unpaid', 'Paid'],
-            default: 'Unpaid',
-        },
-        paymentMethod: {
-            type: String,
-            enum: ['Cash', 'Card', 'UPI', 'None'],
-            default: 'None',
+            enum: ["pending", "paid", "failed"],
+            default: "pending",
         },
     },
-    {
-        timestamps: true,
-    }
+    { timestamps: true }
 );
 
-module.exports = mongoose.model('Order', orderSchema);
+module.exports = mongoose.model("Order", orderSchema);

@@ -1,32 +1,37 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const tableSchema = mongoose.Schema(
-    {
-        number: {
-            type: String,
-            required: [true, 'Please add a table number'],
-            unique: true,
-        },
-        capacity: {
-            type: Number,
-            required: [true, 'Please add table capacity'],
-        },
-        status: {
-            type: String,
-            enum: ['Available', 'Occupied', 'Cleaning', 'Reserved'],
-            default: 'Available',
-        },
-        currentOrder: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'Order',
-        },
-        startTime: {
-            type: Date,
-        }
+const tableSchema = new mongoose.Schema(
+  {
+    tableNumber: {
+      type: Number,
+      required: true,
+      unique: true,
     },
-    {
-        timestamps: true,
-    }
+
+    capacity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+
+    status: {
+      type: String,
+      enum: ["available", "reserved", "occupied"],
+      default: "available",
+    },
+
+    currentOrder: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Order",
+      default: null,
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  { timestamps: true }
 );
 
-module.exports = mongoose.model('Table', tableSchema);
+module.exports = mongoose.model("Table", tableSchema);

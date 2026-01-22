@@ -1,16 +1,24 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../utils/api";
+import api from "../services/api";
 
-// Async thunks
+// ----------------- Async Thunks -----------------
+
 export const register = createAsyncThunk(
   "auth/register",
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await api.post("/auth/register", userData);
-      localStorage.setItem("token", response.data.token);
-      return response.data;
+      await api.post("/auth/register", userData);
+      // Auto-login logic
+      const loginRes = await api.post("/auth/login", {
+        email: userData.email,
+        password: userData.password,
+      });
+      // Synchronize with Interceptor
+      localStorage.setItem("accessToken", loginRes.data.accessToken);
+      localStorage.setItem("refreshToken", loginRes.data.refreshToken);
+      return loginRes.data;
     } catch (err) {
-      return rejectWithValue(err.response.data.message || "Registration failed");
+      return rejectWithValue(err.response?.data?.message || "Registration failed");
     }
   }
 );
@@ -20,10 +28,12 @@ export const login = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await api.post("/auth/login", userData);
-      localStorage.setItem("token", response.data.token);
+      // Synchronize with Interceptor
+      localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
       return response.data;
     } catch (err) {
-      return rejectWithValue(err.response.data.message || "Login failed");
+      return rejectWithValue(err.response?.data?.message || "Login failed");
     }
   }
 );
@@ -35,19 +45,32 @@ export const loadUser = createAsyncThunk(
       const response = await api.get("/auth/me");
       return response.data;
     } catch (err) {
-      return rejectWithValue(err.response.data.message || "Failed to load user");
+      return rejectWithValue(err.response?.data?.message || "Failed to load user");
     }
   }
 );
+
+export const logoutUser = createAsyncThunk("auth/logout", async (_, { rejectWithValue }) => {
+  try {
+    await api.post("/auth/logout");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    return null;
+  } catch (err) {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    return rejectWithValue(err.response?.data?.message);
+  }
+});
 
 export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async (email, { rejectWithValue }) => {
     try {
-      const response = await api.post("/auth/forgotpassword", { email });
-      return response.data;
+      const response = await api.post("/auth/forgot-password", { email });
+      return response.data.message; // Success message from backend
     } catch (err) {
-      return rejectWithValue(err.response.data.message || "Failed to send reset link");
+      return rejectWithValue(err.response?.data?.message || "Failed to send reset email");
     }
   }
 );
@@ -56,121 +79,101 @@ export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
   async ({ token, password }, { rejectWithValue }) => {
     try {
-      const response = await api.put(`/auth/resetpassword/${token}`, { password });
-      return response.data;
+      const response = await api.put(`/auth/reset-password/${token}`, { password });
+      return response.data.message;
     } catch (err) {
-      return rejectWithValue(err.response.data.message || "Failed to reset password");
+      return rejectWithValue(err.response?.data?.message || "Reset failed or token expired");
     }
   }
 );
 
-const initialState = {
-  isAuthenticated: !!localStorage.getItem("token"),
-  user: null,
-  role: null,
-  loading: false,
-  initialLoading: true, // New: tracks if first loadUser is complete
-  error: null,
+// ----------------- Slice -----------------
+
+
+// Helper to handle successful auth (DRY - Don't Repeat Yourself)
+const handleAuthSuccess = (state, action) => {
+  state.loading = false;
+  state.isAuthenticated = true;
+  state.user = action.payload.user;
+  state.role = action.payload.user?.role; // Fix for nested server response
+  state.initialLoading = false;
+  state.error = null;
 };
 
 const authSlice = createSlice({
   name: "auth",
-  initialState,
+  initialState: {
+    user: null,
+    isAuthenticated: !!localStorage.getItem("accessToken"),
+    initialLoading: !!localStorage.getItem("accessToken"), // Wait if token exists
+    loading: false,
+    error: null,
+    role: null,
+    message: null,
+  },
   reducers: {
-    logout: (state) => {
-      localStorage.removeItem("token");
-      state.isAuthenticated = false;
-      state.user = null;
-      state.role = null;
-      state.error = null;
-    },
-    clearError: (state) => {
-      state.error = null;
-    },
     setInitialLoading: (state, action) => {
       state.initialLoading = action.payload;
     },
+    clearError: (state) => { state.error = null; },
+    clearMessage: (state) => { state.message = null; },
   },
   extraReducers: (builder) => {
     builder
-      // Login
-      .addCase(login.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(login.fulfilled, (state, action) => {
-        state.loading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.user;
-        state.role = action.payload.user.role;
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      // Register
+      // REGISTER
       .addCase(register.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(register.fulfilled, (state, action) => {
-        state.loading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.user;
-        state.role = action.payload.user.role;
-      })
+      .addCase(register.fulfilled, handleAuthSuccess) // Using the helper
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      // Load User
-      .addCase(loadUser.pending, (state) => {
+
+      // LOGIN
+      .addCase(login.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
-      .addCase(loadUser.fulfilled, (state, action) => {
+      .addCase(login.fulfilled, handleAuthSuccess) // Using the helper
+      .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.initialLoading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.data;
-        state.role = action.payload.data.role;
+        state.error = action.payload;
       })
+
+      // LOAD USER (Refresh handling)
+      .addCase(loadUser.fulfilled, handleAuthSuccess) // Using the helper
       .addCase(loadUser.rejected, (state) => {
-        state.loading = false;
+        state.user = null;
+        state.role = null;
+        state.isAuthenticated = false;
         state.initialLoading = false;
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+      })
+
+      // LOGOUT
+      .addCase(logoutUser.fulfilled, (state) => {
         state.isAuthenticated = false;
         state.user = null;
         state.role = null;
-        localStorage.removeItem("token");
-      })
-      // Forgot Password
-      .addCase(forgotPassword.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(forgotPassword.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(forgotPassword.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+      
+      // FORGOT/RESET PASSWORD (Keep your existing logic)
+      .addCase(forgotPassword.pending, (state) => { state.loading = true; })
+      .addCase(forgotPassword.fulfilled, (state, action) => { 
+        state.loading = false; 
+        state.message = action.payload; 
       })
-      // Reset Password
-      .addCase(resetPassword.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(resetPassword.fulfilled, (state, action) => {
-        state.loading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.user;
-        state.role = action.payload.user.role;
-      })
-      .addCase(resetPassword.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+      .addCase(resetPassword.fulfilled, (state, action) => { 
+        state.loading = false; 
+        state.message = action.payload; 
       });
   },
 });
 
-export const { logout, clearError, setInitialLoading } = authSlice.actions;
+export const { setInitialLoading, clearError, clearMessage } = authSlice.actions;
+
 export default authSlice.reducer;

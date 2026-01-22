@@ -1,35 +1,39 @@
-const express = require('express');
-const {
-    getCategories,
-    createCategory,
-    updateCategory,
-    deleteCategory,
-    getMenuItems,
-    createMenuItem,
-    updateMenuItem,
-    deleteMenuItem,
-} = require('../controllers/menuController');
-
+const express = require("express");
 const router = express.Router();
+const menuController = require("../controllers/menuController");
+const {
+  protect,
+  authorize,
+} = require("../middleware/authMiddleware");
+const upload = require("../middleware/uploadMiddleware");
 
-const { protect, authorize } = require('../middleware/authMiddleware');
+// Public
 
-// Category Routes
-router.route('/categories')
-    .get(getCategories)
-    .post(protect, authorize('admin'), createCategory);
+// 1. Static/Specific routes first
+router.get("/", menuController.getMenuItems);
+router.get("/categories", menuController.getMenuCategories);
 
-router.route('/categories/:id')
-    .put(protect, authorize('admin'), updateCategory)
-    .delete(protect, authorize('admin'), deleteCategory);
-
-// MenuItem Routes
-router.route('/items')
-    .get(getMenuItems)
-    .post(protect, authorize('admin'), createMenuItem);
-
-router.route('/items/:id')
-    .put(protect, authorize('admin'), updateMenuItem)
-    .delete(protect, authorize('admin'), deleteMenuItem);
+// 2. Dynamic parameter routes last
+router.get("/:id", menuController.getMenuItem);
+// Admin routes
+router.post(
+  "/",
+  protect,
+  authorize("admin"),
+  upload.single("image"),
+  menuController.createMenuItem
+);
+router.put(
+  "/:id",
+  protect,
+  authorize("admin"),
+  menuController.updateMenuItem
+);
+router.delete(
+  "/:id",
+  protect,
+  authorize("admin"),
+  menuController.deleteMenuItem
+);
 
 module.exports = router;

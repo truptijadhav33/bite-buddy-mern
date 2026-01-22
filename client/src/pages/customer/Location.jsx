@@ -10,96 +10,112 @@ import Button from "../../components/ui/Button";
 
 export default function Location() {
   return (
-    <div className="container mx-auto px-4 pt-32 pb-20 max-w-screen-xl">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-        {/* Contact info & Info */}
-        <div className="space-y-12">
-          <div className="space-y-4">
-            <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic">
-              Find <span className="text-primary italic">Us</span>
-            </h1>
-            <p className="text-muted-foreground text-lg max-w-lg font-light">
-              Nestled in the heart of the city, we are easily accessible and
-              ready to welcome you with a warm smile and great food.
+    <div className="container mx-auto px-4 pt-40 pb-20 max-w-screen-xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
+        
+        {/* Contact Info & Details */}
+        <div className="space-y-16">
+          <div className="space-y-6">
+            <div className="space-y-2">
+                <h1 className="text-5xl md:text-7xl font-serif italic font-black text-white tracking-tighter leading-none">
+                Visit our <br /> <span className="text-primary">Sanctuary</span>
+                </h1>
+                <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.4em] mt-4">
+                    The heart of culinary excellence
+                </p>
+            </div>
+            <p className="text-muted-foreground text-lg max-w-lg font-medium leading-relaxed">
+              Nestled in the city's vibrant center, we offer a refined escape 
+              where architectural elegance meets gastronomic art.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 pt-4">
             <ContactCard
               icon={<FaMapPin className="text-primary" />}
-              title="Our Address"
+              title="Our Estate"
               detail="123 Culinary Avenue, Food City, FC 90210"
             />
             <ContactCard
               icon={<FaPhone className="text-primary" />}
-              title="Phone"
+              title="Reservations"
               detail="+1 (555) 123-4567"
             />
             <ContactCard
               icon={<FaEnvelope className="text-primary" />}
-              title="Email"
-              detail="hello@restaurant.com"
+              title="Concierge"
+              detail="hello@bitebuddy.com"
             />
             <ContactCard
               icon={<FaRoute className="text-primary" />}
-              title="Getting Here"
-              detail="Valet parking available at the main entrance."
+              title="Arrival"
+              detail="Complimentary valet parking at main entrance."
             />
           </div>
 
-          <div className="p-8 rounded-[2rem] bg-[#161718] border border-white/5 space-y-6">
-            <h3 className="text-xl font-bold text-white flex items-center gap-3">
-              <FaClock className="text-primary" /> Opening Hours
+          {/* Opening Hours Card */}
+          <div className="p-10 rounded-[3rem] bg-gradient-to-b from-[#1a1b1c] to-[#161718] border border-white/5 shadow-2xl space-y-8 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-8 opacity-5">
+                <FaClock size={120} className="text-white group-hover:rotate-12 transition-transform duration-700" />
+            </div>
+
+            <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white flex items-center gap-3">
+               Weekly Hours
             </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-sm">
+            
+            <div className="space-y-4 relative z-10">
+              <div className="flex justify-between items-center text-xs uppercase tracking-widest font-bold">
                 <span className="text-muted-foreground">Mon - Thu</span>
-                <span className="text-white font-bold">
-                  11:00 AM - 10:00 PM
-                </span>
+                <span className="text-white">11:00 AM - 10:00 PM</span>
               </div>
-              <div className="flex justify-between items-center text-sm p-3 bg-primary/10 rounded-xl border border-primary/20">
-                <span className="text-primary font-bold">Fri - Sat</span>
-                <span className="text-primary font-black">
-                  11:00 AM - 11:30 PM
-                </span>
+              
+              <div className="flex justify-between items-center text-xs uppercase tracking-[0.15em] p-4 bg-primary/10 rounded-2xl border border-primary/20">
+                <span className="text-primary font-black italic">Fri - Sat</span>
+                <span className="text-primary font-black">11:00 AM - 11:30 PM</span>
               </div>
-              <div className="flex justify-between items-center text-sm">
+              
+              <div className="flex justify-between items-center text-xs uppercase tracking-widest font-bold">
                 <span className="text-muted-foreground">Sunday</span>
-                <span className="text-white font-bold">
-                  10:30 AM - 10:00 PM
-                </span>
+                <span className="text-white">10:30 AM - 10:00 PM</span>
               </div>
             </div>
-            <div className="pt-4 border-t border-white/5">
-              <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] mb-4">
-                Ready to visit?
-              </p>
+
+            <div className="pt-6 border-t border-white/5 relative z-10">
               <Button
                 as="a"
-                href="https://www.google.com/maps/dir/?api=1&destination=19.090230751527887,74.72244747404358"
+                href="https://www.google.com/maps"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full rounded-2xl h-12 gap-2 text-sm font-black uppercase tracking-widest"
+                className="w-full rounded-2xl h-16 gap-3 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/10 hover:shadow-primary/20 transition-all"
               >
-                Get Direction on Google Maps <FaArrowRightLong />
+                Navigate via Google Maps <FaArrowRightLong />
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Map Placeholder */}
-        <div className="relative group">
-          <div className="absolute -inset-4 bg-primary/10 rounded-[3rem] blur-3xl group-hover:bg-primary/20 transition-all duration-700" />
-          <div className="relative aspect-square lg:aspect-auto lg:h-[700px] w-full border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl">
-            <div className="relative aspect-square lg:aspect-auto lg:h-[700px] w-full border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl">
-              <iframe
-                title="Hotel Destiny Location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.397028521824!2d74.72244747404358!3d19.090230751527887!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bdcb1c262ae1ec3%3A0x52689a9d3eeeeab8!2sHotel%20Destiny!5e0!3m2!1sen!2sin!4v1768844456072!5m2!1sen!2sin"
-                className="w-full h-full rounded-[2.5rem] border border-white/10 brightness-70 saturate-170"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+        {/* Map Section */}
+        <div className="relative group lg:sticky lg:top-32">
+          {/* Animated Glow behind the map */}
+          <div className="absolute -inset-10 bg-primary/10 rounded-full blur-[100px] opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
+          
+          <div className="relative aspect-square lg:aspect-auto lg:h-[800px] w-full border border-white/10 rounded-[3.5rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+            <iframe
+              title="BiteBuddy Sanctuary Location"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.305935303!2d-74.25986548248684!3d40.69714941932609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY!5e0!3m2!1sen!2sus!4v1689876543210!5m2!1sen!2sus"
+              className="w-full h-full grayscale invert contrast-125 opacity-70 hover:opacity-90 transition-opacity duration-700"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+            
+            {/* Dark vignette over the map */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+            
+            {/* Floating Info Tag */}
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 px-8 py-4 bg-black/80 backdrop-blur-xl border border-white/10 rounded-full">
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-primary text-center">
+                    Private Valet Parking Available
+                </p>
             </div>
           </div>
         </div>
@@ -110,16 +126,18 @@ export default function Location() {
 
 function ContactCard({ icon, title, detail }) {
   return (
-    <div className="space-y-2 group">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="text-lg group-hover:scale-110 transition-transform duration-300">
+    <div className="space-y-3 group">
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-white/[0.03] border border-white/5 rounded-lg group-hover:bg-primary/20 group-hover:border-primary/30 transition-all duration-500">
           {icon}
-        </span>
-        <h4 className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">
+        </div>
+        <h4 className="text-[10px] uppercase font-black tracking-[0.3em] text-muted-foreground/60">
           {title}
         </h4>
       </div>
-      <p className="text-sm text-white font-bold leading-relaxed">{detail}</p>
+      <p className="text-md text-white font-serif italic tracking-tight leading-relaxed max-w-[200px]">
+        {detail}
+      </p>
     </div>
   );
 }

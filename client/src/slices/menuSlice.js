@@ -1,27 +1,21 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../utils/api";
+import api from "../services/api";
 
 // Async thunks
-export const fetchCategories = createAsyncThunk(
-    "menu/fetchCategories",
-    async (_, { rejectWithValue }) => {
-        try {
-            const response = await api.get("/menu/categories");
-            return response.data.data;
-        } catch (err) {
-            return rejectWithValue(err.response.data.message || "Failed to fetch categories");
-        }
-    }
-);
+export const fetchCategories = createAsyncThunk("menu/fetchCategories", async () => {
+  const response = await api.get("/categories");
+  return response.data; // Expecting an array of strings
+});
 
 export const fetchMenuItems = createAsyncThunk(
     "menu/fetchMenuItems",
     async (_, { rejectWithValue }) => {
         try {
-            const response = await api.get("/menu/items");
-            return response.data.data;
+            const response = await api.get("/menu");
+            // CHANGE: response.data IS the array [{}, {}]
+            return response.data;
         } catch (err) {
-            return rejectWithValue(err.response.data.message || "Failed to fetch menu items");
+            return rejectWithValue(err.response?.data?.message || "Failed to fetch menu items");
         }
     }
 );
@@ -30,10 +24,11 @@ export const createMenuItem = createAsyncThunk(
     "menu/createMenuItem",
     async (itemData, { rejectWithValue }) => {
         try {
-            const response = await api.post("/menu/items", itemData);
-            return response.data.data;
+            // Axios will automatically send this as JSON
+            const response = await api.post("/menu", itemData);
+            return response.data;
         } catch (err) {
-            return rejectWithValue(err.response.data.message || "Failed to create menu item");
+            return rejectWithValue(err.response?.data?.message || "Failed to create menu item");
         }
     }
 );
@@ -42,17 +37,17 @@ export const deleteMenuItem = createAsyncThunk(
     "menu/deleteMenuItem",
     async (id, { rejectWithValue }) => {
         try {
-            await api.delete(`/menu/items/${id}`);
-            return id;
+            await api.delete(`/menu/${id}`); // Ensure your API route is correct
+            return id; // Return the ID so we can filter it out of the state
         } catch (err) {
-            return rejectWithValue(err.response.data.message || "Failed to delete menu item");
+            return rejectWithValue(err.response.data.message);
         }
     }
 );
 
 const initialState = {
     items: [],
-    categories: [],
+    categories: ["Starters", "Main Course", "Desserts", "Beverages", "Sides"],
     loading: false,
     error: null,
 };
@@ -73,7 +68,8 @@ const menuSlice = createSlice({
             })
             .addCase(fetchCategories.fulfilled, (state, action) => {
                 state.loading = false;
-                state.categories = action.payload;
+                // This ensures state.categories is ALWAYS an array
+                state.categories = Array.isArray(action.payload) ? action.payload : [];
             })
             .addCase(fetchCategories.rejected, (state, action) => {
                 state.loading = false;
@@ -85,7 +81,7 @@ const menuSlice = createSlice({
             })
             .addCase(fetchMenuItems.fulfilled, (state, action) => {
                 state.loading = false;
-                state.items = action.payload;
+                state.items = Array.isArray(action.payload) ? action.payload : [];
             })
             .addCase(fetchMenuItems.rejected, (state, action) => {
                 state.loading = false;
@@ -97,8 +93,10 @@ const menuSlice = createSlice({
             })
             // Delete Menu Item
             .addCase(deleteMenuItem.fulfilled, (state, action) => {
-                state.items = state.items.filter(item => item._id !== action.payload);
-            });
+                // This is the critical part for the UI to update!
+                state.items = state.items.filter((item) => item._id !== action.payload);
+                state.loading = false;
+            })
     },
 });
 

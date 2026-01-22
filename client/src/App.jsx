@@ -1,18 +1,24 @@
-/* eslint-disable no-unused-vars */
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "./app/hooks";
+import { useAppDispatch, useAppSelector} from "./app/hooks";
 import { loadUser, setInitialLoading } from "./slices/authSlice";
 import RoleGuard from "./utils/roleGuard";
 import LoadingScreen from "./components/ui/LoadingScreen";
+import { Toaster } from "react-hot-toast";
 
-// layouts
+// Layouts
 import AdminLayout from "./components/admin/AdminLayout";
 import StaffLayout from "./components/staff/StaffLayout";
 import CustomerLayout from "./components/customer/CustomerLayout";
 
-// pages
+// Components & Utils
+import ProtectedRoutes from "./routes/ProtectedRoutes";
+
+// Pages
+import Register from "./pages/auth/Register";
 import Login from "./pages/auth/Login";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminMenu from "./pages/admin/Menu";
 import AdminOrders from "./pages/admin/Orders";
@@ -20,42 +26,92 @@ import AdminTables from "./pages/admin/Tables";
 import AdminGallery from "./pages/admin/Gallery";
 import StaffOrders from "./pages/staff/Orders";
 import Kitchen from "./pages/staff/Kitchen";
+import Profile from "./components/common/Profile";
+import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import Home from "./pages/customer/Home";
-import Menu from "./pages/customer/Menu";
+import MenuList from "./pages/customer/Menu";
 import Cart from "./pages/customer/Cart";
-import Orders from "./pages/customer/Orders";
+import Orders from "./pages/customer/MyOrders";
 import Booking from "./pages/customer/Booking";
 import StaffTables from "./pages/staff/Tables";
 import StaffDashboard from "./pages/staff/Dashboard";
 import Gallery from "./pages/customer/Gallery";
 import Location from "./pages/customer/Location";
-import Register from "./pages/auth/Register";
 
 export default function App() {
   const dispatch = useAppDispatch();
-  const { role, initialLoading } = useAppSelector((state) => state.auth);
+  const { initialLoading, user } = useAppSelector((state) => state.auth); // Added 'user' here
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      dispatch(loadUser());
-    } else {
-      dispatch(setInitialLoading(false));
-    }
-  }, [dispatch]);
+ useEffect(() => {
+  const token = localStorage.getItem("accessToken");
+  if (token && !user) {
+    dispatch(loadUser());
+  } else if (!token) {
+    dispatch(setInitialLoading(false));
+  }
+}, [dispatch, user]);
 
   if (initialLoading) {
-    return <LoadingScreen />;
-  }
+  return <LoadingScreen />;
+}
 
   return (
     <BrowserRouter>
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            background: "#262728",
+            color: "#fff",
+            border: "1px solid rgba(255,255,255,0.1)",
+          },
+          success: {
+            iconTheme: {
+              primary: "#EAC157",
+              secondary: "#000",
+            },
+          },
+        }}
+      />
       <Routes>
-
+        {/* AUTH ROUTES */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* ADMIN */}
+        {/* CUSTOMER ROUTES */}
+        <Route path="/" element={<CustomerLayout />}>
+          <Route index element={<Home />} />
+          <Route path="menu" element={<MenuList />} />
+          <Route path="gallery" element={<Gallery />} />
+          <Route path="location" element={<Location />} />
+
+          {/* PROTECTED CUSTOMER ROUTES */}
+          <Route
+            element={
+              <ProtectedRoutes allowedRoles={["customer", "admin", "staff"]} />
+            }
+          >
+            {/* SHARED: Every logged in user can see their own Profile info */}
+            <Route path="profile" element={<Profile />} />
+
+            {/* CUSTOMER ONLY: The Dashboard with points/orders/stats */}
+            <Route
+              path="dashboard"
+              element={
+                <RoleGuard allowedRole="customer">
+                  <CustomerDashboard />
+                </RoleGuard>
+              }
+            />
+            <Route path="cart" element={<Cart />} />
+            <Route path="booking" element={<Booking />} />
+            <Route path="orders" element={<Orders />} />
+          </Route>
+        </Route>
+
+        {/* ADMIN ROUTES */}
         <Route
           path="/admin"
           element={
@@ -71,6 +127,7 @@ export default function App() {
           <Route path="gallery" element={<AdminGallery />} />
         </Route>
 
+        {/* STAFF ROUTES */}
         <Route
           path="/staff"
           element={
@@ -85,19 +142,8 @@ export default function App() {
           <Route path="tables" element={<StaffTables />} />
         </Route>
 
-        {/* CUSTOMER */}
-        <Route path="/" element={<CustomerLayout />}>
-          <Route index element={<Home />} />
-          <Route path="menu" element={<Menu />} />
-          <Route path="gallery" element={<Gallery />} />
-          <Route path="location" element={<Location />} />
-          <Route path="cart" element={<Cart />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="booking" element={<Booking />} />
-        </Route>
-
+        {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" />} />
-
       </Routes>
     </BrowserRouter>
   );

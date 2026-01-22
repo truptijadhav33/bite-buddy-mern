@@ -1,21 +1,31 @@
-const express = require('express');
-const {
-    getGalleryItems,
-    createGalleryItem,
-    updateGalleryItem,
-    deleteGalleryItem,
-} = require('../controllers/galleryController');
-
+const express = require("express");
 const router = express.Router();
 
-const { protect, authorize } = require('../middleware/authMiddleware');
+const galleryController = require("../controllers/galleryController");
+const { protect, authorize } = require("../middleware/authMiddleware");
+const upload = require("../middleware/uploadMiddleware");
 
-router.route('/')
-    .get(getGalleryItems)
-    .post(protect, authorize('admin'), createGalleryItem);
+// Public
+router.get("/", galleryController.getAll);
+router.get(
+  "/category/:category",
+  galleryController.getByCategory
+);
 
-router.route('/:id')
-    .put(protect, authorize('admin'), updateGalleryItem)
-    .delete(protect, authorize('admin'), deleteGalleryItem);
+// Admin only
+router.post(
+  "/",
+  protect,
+  authorize("admin"),
+  upload.single("image"),
+  galleryController.createItem
+);
+
+router.delete(
+  "/:id",
+  protect,
+  authorize("admin"),
+  galleryController.deleteItem
+);
 
 module.exports = router;
