@@ -32,9 +32,10 @@ export default function Register() {
 
     useEffect(() => {
         if (isAuthenticated) {
-            if (role === "admin") navigate("/admin");
-            else if (role === "staff") navigate("/staff");
-            else navigate("/");
+            // if (role === "admin") navigate("/admin");
+            // else if (role === "staff") navigate("/staff");
+            // else
+            navigate("/login");
         }
 
         if (error) {

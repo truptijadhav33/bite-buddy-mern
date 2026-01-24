@@ -1,52 +1,97 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { fetchGalleryItems } from "../../slices/gallerySlice";
-import { FaExpand, FaUtensils, FaCamera, FaChampagneGlasses, FaCircleExclamation } from "react-icons/fa6";
+import { 
+    FaExpand, FaXmark, FaCircleExclamation, 
+    FaArrowLeft, FaArrowRight, FaShareNodes 
+} from "react-icons/fa6";
+import toast from "react-hot-toast";
 
 const categories = ["All", "Interior", "Food", "Events"];
 
 export default function Gallery() {
     const dispatch = useAppDispatch();
     const { items = [], loading, error } = useAppSelector((state) => state.gallery);
+    
     const [activeTab, setActiveTab] = useState("All");
+    const [selectedImage, setSelectedImage] = useState(null);
 
     useEffect(() => {
         dispatch(fetchGalleryItems());
     }, [dispatch]);
 
+    // Prevent background scrolling when Lightbox is open
+    useEffect(() => {
+        if (selectedImage) {
+            const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+            document.body.style.overflow = "hidden";
+            document.body.style.paddingRight = `${scrollBarWidth}px`;
+        } else {
+            document.body.style.overflow = "unset";
+            document.body.style.paddingRight = "0px";
+        }
+    }, [selectedImage]);
+
+    // Filtering logic
     const filteredImages = items?.filter(img => {
-    if (activeTab === "All") return true;
-    
-    // Normalize both to lowercase and trim any accidental whitespace
-    return img.category?.toLowerCase().trim() === activeTab.toLowerCase().trim();
-}) || [];
+        if (activeTab === "All") return true;
+        return img.category?.toLowerCase().trim() === activeTab.toLowerCase().trim();
+    }) || [];
 
-    // 1. Loading State
-    if (loading) {
-        return (
-            <div className="flex flex-col justify-center items-center py-60 space-y-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">Developing your view...</p>
-            </div>
-        );
-    }
+    const showNext = (e) => {
+        e?.stopPropagation();
+        const currentIndex = filteredImages.findIndex(img => img._id === selectedImage._id);
+        const nextIndex = (currentIndex + 1) % filteredImages.length;
+        setSelectedImage(filteredImages[nextIndex]);
+    };
 
-    // 2. Error State
-    if (error) {
-        return (
-            <div className="flex flex-col justify-center items-center py-60 text-center space-y-4">
-                <FaCircleExclamation className="text-red-500/50 text-4xl" />
-                <h2 className="text-white font-serif italic text-2xl">Visuals Unavailable</h2>
-                <p className="text-muted-foreground text-xs uppercase tracking-widest max-w-xs mx-auto">
-                    We're having trouble loading the gallery. Please try again later.
-                </p>
-            </div>
-        );
-    }
+    const showPrev = (e) => {
+        e?.stopPropagation();
+        const currentIndex = filteredImages.findIndex(img => img._id === selectedImage._id);
+        const prevIndex = (currentIndex - 1 + filteredImages.length) % filteredImages.length;
+        setSelectedImage(filteredImages[prevIndex]);
+    };
+
+    const handleShare = async (e, img) => {
+        e.stopPropagation();
+        const shareData = {
+            title: `BiteBuddy - ${img.title}`,
+            text: img.description,
+            url: window.location.href, 
+        };
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                toast.success("Link copied to clipboard!");
+            }
+        } catch (err) { console.error("Error sharing:", err); }
+    };
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (!selectedImage) return;
+            if (e.key === "Escape") setSelectedImage(null);
+            if (e.key === "ArrowRight") showNext();
+            if (e.key === "ArrowLeft") showPrev();
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [selectedImage, filteredImages, showNext, showPrev]);
+
+    if (loading) return (
+        <div className="flex flex-col justify-center items-center py-60 space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground text-center">Developing your view...</p>
+        </div>
+    );
 
     return (
         <div className="container mx-auto px-4 pt-32 pb-20 max-w-screen-xl animate-in fade-in duration-1000">
-            {/* Header */}
+                       {/* Header */}
             <div className="text-center space-y-6 mb-16">
                 <div className="space-y-2">
                     <h1 className="text-5xl md:text-7xl font-serif italic font-black text-white tracking-tighter">
@@ -77,40 +122,47 @@ export default function Gallery() {
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                 {filteredImages.map((img, index) => (
                     <div
                         key={img._id || index}
-                        className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-[#161718] border border-white/5 hover:border-primary/40 transition-all duration-700 cursor-zoom-in"
+                        onClick={() => setSelectedImage(img)}
+                        className="group relative aspect-square rounded-[2.5rem] overflow-hidden bg-[#161718] border border-white/5 hover:border-primary/40 transition-all duration-700 cursor-pointer"
                     >
-                        {/* Image */}
+                        {/* Image - Better default opacity */}
                         <img
                             src={img.imageUrl}
                             alt={img.title}
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-50 group-hover:opacity-100"
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 group-hover:opacity-30"
                         />
 
-                        {/* Overlay Icon (Appears when not hovered) */}
-                        <div className="absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-500 pointer-events-none">
-                            <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/20 text-xl">
-                                {img.category === "Food" && <FaUtensils />}
-                                {img.category === "Interior" && <FaCamera />}
-                                {img.category === "Events" && <FaChampagneGlasses />}
-                            </div>
-                        </div>
-
-                        {/* Hover Content */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-10">
-                            <div className="space-y-3 transform translate-y-8 group-hover:translate-y-0 transition-transform duration-700">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-[9px] uppercase font-black tracking-[0.3em] text-primary">{img.category}</span>
-                                    <div className="h-px flex-1 bg-primary/20" />
-                                </div>
-                                <h3 className="text-3xl font-serif italic text-white leading-tight">{img.title}</h3>
-                                <p className="text-xs text-muted-foreground font-medium leading-relaxed line-clamp-2">{img.description}</p>
+                        {/* Smart Overlay - Always shows Title/Category, reveals more on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-8">
+                            <div className="transform translate-y-6 group-hover:translate-y-0 transition-transform duration-500">
+                                <span className="text-[9px] uppercase font-black tracking-[0.3em] text-primary">
+                                    {img.category}
+                                </span>
+                                <h3 className="text-2xl font-serif italic text-white leading-tight pb-2.5">
+                                    {img.title}
+                                </h3>
                                 
-                                <div className="pt-6 flex items-center gap-3 text-primary text-[10px] font-black uppercase tracking-widest">
-                                    <FaExpand size={12} /> View Full Detail
+                                {/* Hidden part that slides up */}
+                                <div className="hidden group-hover:block transition-all duration-500 pt-2">
+                                    <p className="text-[14px] text-primary-foreground block italic mb-4">
+                                        {img.description}
+                                    </p>
+                                    <div className="h-px w-full bg-gradient-to-r from-primary/90 to-transparent" />
+                                    <div className="flex items-center justify-between pt-4">
+                                        <div className="flex items-center gap-2 text-primary text-[9px] font-black uppercase tracking-widest cursor-pointer">
+                                            <FaExpand size={10} /> View Fullscreen
+                                        </div>
+                                        <button 
+                                            onClick={(e) => handleShare(e, img)}
+                                            className="text-primary-foreground hover:text-primary transition-colors"
+                                        >
+                                            <FaShareNodes size={14} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -118,12 +170,64 @@ export default function Gallery() {
                 ))}
             </div>
 
-            {/* Empty State */}
-            {filteredImages.length === 0 && (
-                <div className="text-center py-32 rounded-[3rem] border border-dashed border-white/10">
-                    <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.5em]">
-                        Nothing captured in this category yet
-                    </p>
+            {/* --- FULL SCREEN LIGHTBOX --- */}
+            {selectedImage && (
+                <div 
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-xl p-10 md:p-30 animate-in fade-in duration-300"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    {/* Navigation */}
+                    <button onClick={showPrev} className="absolute left-4 md:left-10 z-[110] p-4 text-muted hover:text-primary transition-all">
+                        <FaArrowLeft size={30} />
+                    </button>
+                    <button onClick={showNext} className="absolute right-4 md:right-10 z-[110] p-4 text-muted hover:text-primary transition-all">
+                        <FaArrowRight size={30} />
+                    </button>
+
+                    {/* Close */}
+                    <button className="absolute top-8 right-8 text-muted hover:text-primary z-[110] flex items-center gap-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest">Close</span>
+                        <FaXmark size={24} />
+                    </button>
+
+                    <div 
+                        className="relative max-w-4xl w-full flex flex-col lg:flex-row gap-12 items-center"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="w-full lg:w-3/5 aspect-[4/5] lg:aspect-square rounded-[3rem] overflow-hidden shadow-2xl border border-white/10">
+                            <img 
+                                key={selectedImage._id}
+                                src={selectedImage.imageUrl} 
+                                className="w-full h-full object-cover animate-in fade-in zoom-in duration-500" 
+                                alt={selectedImage.title} 
+                            />
+                        </div>
+
+                        <div className="w-full lg:w-2/5 text-left space-y-8 animate-in slide-in-from-right-10 duration-700">
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-primary text-[10px] font-black uppercase tracking-[0.3em]">
+                                        {selectedImage.category}
+                                    </span>
+                                    <button 
+                                        onClick={(e) => handleShare(e, selectedImage)}
+                                        className="flex items-center gap-2 text-muted hover:text-primary transition-colors text-[12px] font-black uppercase tracking-widest"
+                                    >
+                                        <FaShareNodes /> Share
+                                    </button>
+                                </div>
+                                <h2 className="text-4xl md:text-5xl font-serif italic text-white leading-none">
+                                    {selectedImage.title}
+                                </h2>
+                            </div>
+                            
+                            <div className="h-px w-full bg-gradient-to-r from-primary/90 to-transparent" />
+                            
+                            <p className="text-lg text-muted-foreground leading-relaxed italic font-light">
+                                "{selectedImage.description}"
+                            </p>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

@@ -22,6 +22,7 @@ exports.createItem = wrapAsync(async (req, res) => {
 
     const galleryData = {
         title: req.body.title,
+        description: req.body.description,
         category: req.body.category,
         imageUrl: req.file.path,        // URL from Cloudinary
         imagePublicId: req.file.filename, // Public ID from Cloudinary

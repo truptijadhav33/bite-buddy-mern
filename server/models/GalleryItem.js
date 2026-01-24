@@ -7,7 +7,10 @@ const galleryItemSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-
+    description: {
+      type: String,
+      required:true,
+    },
     imageUrl: {
       type: String,
       required: true,
