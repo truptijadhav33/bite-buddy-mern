@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const Menu = require('./models/Menu');
-const GalleryItem = require('./models/GalleryItem');
+const Menu = require('./src/modules/menu/Menu');
+const GalleryItem = require('./src/modules/gallery/GalleryItem');
 
 dotenv.config();
 
@@ -40,7 +40,7 @@ const seedData = async () => {
         title: "Modern Dining Hall",
         category: "interior",
         imageUrl: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
-        imagePublicId: "seed_sample_1", 
+        imagePublicId: "seed_sample_1",
         description: "Our main seating area featuring minimalist design."
       },
       {

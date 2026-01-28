@@ -1,4 +1,4 @@
-import MenuList from "../../components/customer/MenuList";
+import MenuList from "../../features/menu/components/MenuList";
 
 export default function Menu() {
   return (

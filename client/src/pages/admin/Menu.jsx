@@ -1,4 +1,4 @@
-import MenuTableAdmin from "../../components/admin/MenuTableAdmin";
+import MenuTableAdmin from "../../features/menu/components/MenuTableAdmin";
 
 export default function Menu() {
   return (

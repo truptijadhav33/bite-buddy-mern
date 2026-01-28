@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { fetchOrders, updateOrderStatus } from "../../slices/orderSlice";
-import KitchenTicket from "../../components/staff/KitchenTicket";
+import KitchenTicket from "../../features/orders/components/KitchenTicket";
 import { FaArrowRightLong } from "react-icons/fa6";
 
 export default function Kitchen() {

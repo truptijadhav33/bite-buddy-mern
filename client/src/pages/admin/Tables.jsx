@@ -1,4 +1,4 @@
-import TablesManagement from "../../components/admin/TablesManagement";
+import TablesManagement from "../../features/tables/components/TablesManagement";
 
 export default function Tables() {
   return (

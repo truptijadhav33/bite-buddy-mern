@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { fetchOrders } from "../../slices/orderSlice";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
+import LoadingSpinner from "../../shared/components/LoadingSpinner";
 
 import { 
   FaBagShopping, 

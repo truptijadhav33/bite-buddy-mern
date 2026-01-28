@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { resetPassword } from "../../slices/authSlice";
-import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
+import Input from "../../shared/ui/Input";
+import Button from "../../shared/ui/Button";
 import { FaLock, FaArrowLeft, FaCheck } from "react-icons/fa6";
 
 export default function ResetPassword() {

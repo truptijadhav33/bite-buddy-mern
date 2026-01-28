@@ -6,7 +6,7 @@ import {
   FaRoute,
   FaArrowRightLong,
 } from "react-icons/fa6";
-import Button from "../../components/ui/Button";
+import Button from "../../shared/ui/Button";
 
 export default function Location() {
   return (

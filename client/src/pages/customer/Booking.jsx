@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAppSelector } from "../../app/hooks";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
+import Button from "../../shared/ui/Button";
+import Input from "../../shared/ui/Input";
 import { FaCalendarDays, FaClock, FaUsers, FaCircleCheck, FaChampagneGlasses } from "react-icons/fa6";
 
 export default function Booking() {

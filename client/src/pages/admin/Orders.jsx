@@ -1,4 +1,4 @@
-import OrdersTableAdmin from "../../components/admin/OrdersTableAdmin";
+import OrdersTableAdmin from "../../features/orders/components/OrdersTableAdmin";
 
 export default function Orders() {
   return (

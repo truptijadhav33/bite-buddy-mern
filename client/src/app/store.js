@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "../slices/authSlice";
-import cartReducer from "../slices/cartSlice";
-import menuReducer from "../slices/menuSlice";
-import orderReducer from "../slices/orderSlice";
-import tableReducer from "../slices/tableSlice";
-import galleryReducer from "../slices/gallerySlice";
+import authReducer from "../features/auth/authSlice";
+import cartReducer from "../features/orders/cartSlice";
+import menuReducer from "../features/menu/menuSlice";
+import orderReducer from "../features/orders/orderSlice";
+import tableReducer from "../features/tables/tableSlice";
+import galleryReducer from "../features/gallery/gallerySlice";
 
 export const store = configureStore({
   reducer: {

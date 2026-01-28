@@ -1,6 +1,6 @@
 import { FaReceipt, FaKitchenSet, FaTable, FaClock, FaCircleCheck, FaFire } from "react-icons/fa6";
-import StatCard from "../../components/ui/StatCard";
-import QuickLink from "../../components/ui/QuickLink";
+import StatCard from "../../shared/ui/StatCard";
+import QuickLink from "../../shared/ui/QuickLink";
 
 export default function StaffDashboard() {
     return (

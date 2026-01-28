@@ -1,6 +1,6 @@
 // src/pages/customer/CustomerDashboard.jsx
 import { useAppSelector } from "../../app/hooks";
-import StatCard from "../../components/ui/StatCard"; 
+import StatCard from "../../shared/ui/StatCard"; 
 import { Heart, Clock, Star, Ticket } from "lucide-react";
 import { FaUtensils } from "react-icons/fa6"; // For the promo card
 

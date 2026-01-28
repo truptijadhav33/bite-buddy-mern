@@ -1,15 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector} from "./app/hooks";
-import { loadUser, setInitialLoading } from "./slices/authSlice";
-import RoleGuard from "./utils/roleGuard";
-import LoadingScreen from "./components/ui/LoadingScreen";
+import { useAppDispatch, useAppSelector } from "./app/hooks";
+import { loadUser, setInitialLoading } from "./features/auth/authSlice";
+import RoleGuard from "./shared/utils/roleGuard";
+import LoadingScreen from "./shared/ui/LoadingScreen";
 import { Toaster } from "react-hot-toast";
 
 // Layouts
-import AdminLayout from "./components/admin/AdminLayout";
-import StaffLayout from "./components/staff/StaffLayout";
-import CustomerLayout from "./components/customer/CustomerLayout";
+import AdminLayout from "./shared/layouts/AdminLayout";
+import StaffLayout from "./shared/layouts/StaffLayout";
+import CustomerLayout from "./shared/layouts/CustomerLayout";
 
 // Components & Utils
 import ProtectedRoutes from "./routes/ProtectedRoutes";
@@ -26,7 +26,7 @@ import AdminTables from "./pages/admin/Tables";
 import AdminGallery from "./pages/admin/Gallery";
 import StaffOrders from "./pages/staff/Orders";
 import Kitchen from "./pages/staff/Kitchen";
-import Profile from "./components/common/Profile";
+import Profile from "./features/auth/components/Profile";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import Home from "./pages/customer/Home";
 import MenuList from "./pages/customer/Menu";
@@ -42,18 +42,18 @@ export default function App() {
   const dispatch = useAppDispatch();
   const { initialLoading, user } = useAppSelector((state) => state.auth); // Added 'user' here
 
- useEffect(() => {
-  const token = localStorage.getItem("accessToken");
-  if (token && !user) {
-    dispatch(loadUser());
-  } else if (!token) {
-    dispatch(setInitialLoading(false));
-  }
-}, [dispatch, user]);
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token && !user) {
+      dispatch(loadUser());
+    } else if (!token) {
+      dispatch(setInitialLoading(false));
+    }
+  }, [dispatch, user]);
 
   if (initialLoading) {
-  return <LoadingScreen />;
-}
+    return <LoadingScreen />;
+  }
 
   return (
     <BrowserRouter>

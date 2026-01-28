@@ -1,4 +1,4 @@
-import StaffOrdersTable from "../../components/staff/StaffOrdersTable";
+import StaffOrdersTable from "../../features/orders/components/StaffOrdersTable";
 
 export default function Orders() {
   return (

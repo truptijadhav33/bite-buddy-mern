@@ -1,5 +1,5 @@
-import StatCard from "../../components/admin/StatCard";
-import OrdersTable from "../../components/admin/OrdersTableAdmin";
+import StatCard from "../../shared/components/StatCard";
+import OrdersTable from "../../features/orders/components/OrdersTableAdmin";
 import { FaBox, FaMoneyBillWave, FaChair, FaClock } from "react-icons/fa6";
 
 export default function Dashboard() {

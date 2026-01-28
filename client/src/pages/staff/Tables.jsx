@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { fetchTables, updateTable } from "../../slices/tableSlice";
-import TableCard from "../../components/staff/TableCard";
+import TableCard from "../../features/tables/components/TableCard";
 
 const statusStyles = {
     Available: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",

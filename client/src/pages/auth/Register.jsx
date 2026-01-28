@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { register, clearError } from "../../slices/authSlice";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
+import Button from "../../shared/ui/Button";
+import Input from "../../shared/ui/Input";
 import { FaUtensils, FaEnvelope, FaLock, FaArrowRight } from "react-icons/fa6";
 
 

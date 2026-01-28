@@ -1,4 +1,4 @@
-import GalleryTableAdmin from "../../components/admin/GalleryTableAdmin";
+import GalleryTableAdmin from "../../features/gallery/components/GalleryTableAdmin";
 
 export default function Gallery() {
     return (

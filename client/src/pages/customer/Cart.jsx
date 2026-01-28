@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useSelector, useDispatch } from "react-redux";
 import { removeFromCart, updateQuantity, clearCart } from "../../slices/cartSlice";
-import Button from "../../components/ui/Button";
+import Button from "../../shared/ui/Button";
 import { FaTrash, FaMinus, FaPlus, FaArrowRight, FaCartShopping, FaUtensils, FaLock } from "react-icons/fa6";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
